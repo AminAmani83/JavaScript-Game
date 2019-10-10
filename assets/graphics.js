@@ -1,9 +1,19 @@
 console.log("graphics.js has loaded");
 
+// Canvas preparation
 var canvas = document.getElementById("mycanvas");
+canvas.width = 600;
+canvas.height = 600;
 var ctx = canvas.getContext("2d");
 
-// SpaceCraft + SpaceInvaders Images
+// Creating the SpaceCraft Image Element // Does Not Work
+// <img id="spacecraft" src="img/spacecraft.png" alt="spacecraft" />
+// imgSpaceCraft = document.createElement('img');
+// imgSpaceCraft.id = "spacecraft";
+// imgSpaceCraft.src = "img/spacecraft.png";
+// imgSpaceCraft.alt = "spacecraft";
+// document.getElementsByTagName('main')[0].appendChild(imgSpaceCraft);
+// We have to add it to the HTML and call it from here, like so:
 imgSpaceCraft = document.getElementById('spacecraft');
 imgSpaceInvader = document.getElementById('space-invader')
 
@@ -31,6 +41,11 @@ ctx.drawImage(imgSpaceCraft, 300, 540);
 // ctx.drawImage(imgSpaceInvader, 420, 420);
 // ctx.drawImage(imgSpaceInvader, 480, 480);
 // ctx.drawImage(imgSpaceInvader, 540, 540);
+
+// we could also use pre-defined arrays for coordinates:
+var x = [0,60,120,180,240,300,360,420,480,540];
+var y = [0,60,120,180,240,300,360,420,480,540];
+// then we could use x[6] for the 6th grid location instead of 360
 
 // Clearing the Canvas at the beginning of each frame
 // ctx.clearRect(0, 0, canvas.width, canvas.height);
