@@ -94,7 +94,7 @@ si1.update();
 let si2 = new SpaceInvader(120 , 120);
 si2.update();
 
-// Put all SpaceInvaders in an array so that we can loop through them
+// Put all SpaceInvaders in an array so that we can loop through them later
 let spaceInvaders = [];
 spaceInvaders.push(si1);
 spaceInvaders.push(si2);
@@ -102,7 +102,7 @@ spaceInvaders.push(si2);
 // Add the Spacecraft
 spacecraft.update();
 
-// Frame Refresh Timer
+// Timer for Changing SpaceInvader Positions Every X sec.
 interval = setInterval(updateSpaceInvaderPositions, 1000);
 
 
