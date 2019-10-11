@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!-- Group Project - JS Course - JohnAbbott College -->
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Spaceship Game</title>
+        <style>
+            body {
+                background-color: #f1f1f1;
+            }
+            #spacecraft, #space-invader {
+                display: none;
+            }
+            #mycanvas {
+                border: 1px solid #000000;
+                background-color: white;
+            }
+            footer {
+                background-color: teal;
+                color: white;
+                padding: 10px 20px;
+                margin-top: 10px;
+            }
+            header {
+                background-color: teal;
+                color: white;
+                padding: 5px 50px;
+                margin-bottom: 10px;
+            }
+            main {
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>SpaceShip Game</h1>
+        </header>
+
+        <main>
+            <canvas id="mycanvas">
+                Your browser does not support the HTML5 canvas tag.
+            </canvas>
+
+            <button onclick="moveleft()">LEFT</button>
+            <button onclick="moveright()">RIGHT</button>
+    
+            <!-- Images to be used on the canvas via JS (Hidden by default on HTML) -->
+            <img id="spacecraft" src="img/spacecraft.png" alt="spacecraft" />
+            <img id="space-invader" src="img/space-invader.png" alt="space-invader" />
+        </main>
+
+        <footer>
+            <!-- Image Credit -->
+            <div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+        </footer>
+
+        <!-- JS -->
+        <script src="assets/game.js"></script>
+    </body>
+</html>
