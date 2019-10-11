@@ -45,7 +45,7 @@ function SpaceInvader(xLocation, yLocation) {
     };
 }
 
-// A function to refresh the page every x milliseconds
+// Refresh the Frame / Redraw everything on the Canvas
 function updateFrame(){
     // Clear the Canvas
     gameArea.clear();
