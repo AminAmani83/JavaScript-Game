@@ -4,6 +4,7 @@ console.log("game.js has loaded");
 var gameArea = {
     // Vars
     canvas : document.getElementById("mycanvas"),
+    score : 0,
     // Methods
     init : function(){ // Initialize Canvas
         this.canvas.width = 600;
@@ -16,10 +17,24 @@ var gameArea = {
     gameOver : function(){ // Show Message On Screen
         clearInterval(interval); // Stop Frame Refresh
         clearInterval(intervalGen); 
+        console.log("game over");
         this.ctx.font = "30px Arial";
         this.ctx.fillStyle = "black";
         this.ctx.textAlign = "center";
         this.ctx.fillText("Game Over", this.canvas.width/2, this.canvas.height/2); // center coordinates
+
+        let main = document.getElementsByTagName("main")[0];
+        let buttons = document.getElementsByTagName("button");
+        for(let i = 0;  i < buttons.length; i++){
+            buttons[i].disabled = true;
+            buttons[i].style.visibility = 'hidden';
+        }
+        let retry = document.createElement("button");
+        retry.innerText = "Retry";
+        retry.id = "retryBtn";
+        retry.addEventListener("click", startGame);
+        main.appendChild(retry);
+        
     }
 }
 
@@ -51,6 +66,19 @@ function SpaceInvader(xLocation, yLocation) {
     };
 }
 
+function bullet(xLocation, yLocation) {
+    this.x = xLocation;
+    this.y = yLocation;
+    // Methods
+    this.show = function(){ // Redraw the Object on the Screen
+        fill(50, 0, 200);
+        ellipse(this.x, this.y, 16, 16);
+    }
+    this.move = function(){
+        this.y += 5;
+    }
+}
+
 // Refresh the Frame / Redraw everything on the Canvas
 function updateFrame(){
     // Clear the Canvas
@@ -70,21 +98,23 @@ function updateFrame(){
 function updateSpaceInvaderPositions(){
     for (i in spaceInvaders){
         spaceInvaders[i].yLocation += 60;
-    }
-    updateFrame(); // Something has changed, redraw the whole canvas
-    for (i in spaceInvaders){
-        if (spaceInvaders[i].yLocation == 540){
-            gameArea.gameOver();     // Show message on the Screen
+        if (spaceInvaders[i].yLocation < 540){
+            updateFrame(); // Something has changed, redraw the whole canvas            
+        } else{
+            updateFrame();
+            gameArea.gameOver();  // Show message on the Screen
+            break;
         }
     }
 }
 
 let spaceInvaders = []; // array to store spaceinvaders
 function generateInvaders(){ // generating invaders
-    let randPos = Math.floor(Math.random() * 11)*60; // random X position
-    let si = new SpaceInvader(randPos , 0);
+    let randPos = Math.floor(Math.random() * 10)*60; // random X position
+    let si = new SpaceInvader(120 , 0);
     spaceInvaders.push(si); // add spaceinvader to array
     console.log(randPos);
+    updateFrame();
 }    
     
 
@@ -111,8 +141,7 @@ function moveright() {
 // The Action Happens Here ///////////////////////////////////////
 /////////////////////////////////////////////////////////////////
 
-// Canvas Setup
-gameArea.init();
+
 
 /* Daniil: I commented this part since spaceinvader object are created inside
 generateInvaders()
@@ -128,19 +157,70 @@ si2.update();
 spaceInvaders.push(si1);
 spaceInvaders.push(si2); */
 
-// Add the Spacecraft
-spacecraft.update();
+
+
+function startGame(){
+
+    // Canvas Setup
+    gameArea.init();
+    // Add the Spacecraft
+    spaceInvaders = []; // empty array that stores spaceinvaders
+    gameArea.score = 0; // set score to zero
+    spacecraft.update();
+    let scoreDiv = document.getElementById('score');
+    scoreDiv.innerText = ""; // reset previous score
+    let buttons = document.getElementsByTagName("button");
+        for(let i = 0;  i < buttons.length; i++){ // show and enable buttons
+            buttons[i].disabled = false;
+            buttons[i].style.visibility = 'visible';
+        }
+    if(document.getElementById('retryBtn')){
+        let retry = document.getElementById('retryBtn');
+        retry.style.visibility = "hidden";
+        retry.disabled = true;
+    }
+    
+    let p = document.createElement('p');
+    p.innerText = "Your score is " + gameArea.score;
+    scoreDiv.appendChild(p);
+    // Timer for Changing SpaceInvader Positions Every X sec.
+    interval = setInterval(updateSpaceInvaderPositions, 1000);
+    intervalGen = setInterval(generateInvaders, 1000);
+
+}
 
 // Shoot function
 function shoot(){
     for (var i = 0;  i < spaceInvaders.length; i++){
         if(spacecraft.xLocation == spaceInvaders[i].xLocation){
-            console.log("Hit");
-            spaceInvaders.splice(i, 1);
+            let indexes = [];
+            indexes.push(i);
+            if(indexes.length >1){
+                let lowestPos = 0;
+                let lowestIndex = 0; //index for the lowest invader
+                for (var j = 0;  j < indexes.length; j++){
+                    if(spaceInvaders[indexes[j]].yLocation > lowestPos){
+                        lowestPos = spaceInvaders[indexes[j]].yLocation;
+                        lowestIndex = indexes[j];
+                    }
+                }
+                spaceInvaders.splice(lowestIndex, 1);
+                gameArea.score++;
+                updateFrame();             
+            } else{
+                spaceInvaders.splice(i, 1);
+                gameArea.score++;
+                updateFrame();
             }
+            console.log(indexes);
         }
+    }
+    
 }
 
-// Timer for Changing SpaceInvader Positions Every X sec.
-interval = setInterval(updateSpaceInvaderPositions, 1000);
-intervalGen = setInterval(generateInvaders, 1000);
+startGame();
+
+
+
+
+
