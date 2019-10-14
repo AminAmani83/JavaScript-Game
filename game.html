@@ -38,12 +38,13 @@
         </header>
 
         <main>
+            <div id="score"></div>
             <canvas id="mycanvas">
                 Your browser does not support the HTML5 canvas tag.
             </canvas>
-
-            <button onclick="moveleft()">LEFT</button>
-            <button onclick="moveright()">RIGHT</button>
+                <button onclick="moveleft()">LEFT</button>
+                <button onclick="moveright()">RIGHT</button>
+                <button onclick="shoot()">SHOOT</button>
     
             <!-- Images to be used on the canvas via JS (Hidden by default on HTML) -->
             <img id="spacecraft" src="img/spacecraft.png" alt="spacecraft" />
