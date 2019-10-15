@@ -8,9 +8,6 @@
             body {
                 background-color: #f1f1f1;
             }
-            #spacecraft, #space-invader {
-                display: none;
-            }
             #mycanvas {
                 border: 1px solid #000000;
                 background-color: white;
@@ -30,6 +27,16 @@
             main {
                 text-align: center;
             }
+            .hidden {
+                display: none;
+            }
+            .visible {
+                display: block;
+            }
+            button {
+                width: 100px;
+                height: 100px;
+            }
         </style>
     </head>
     <body>
@@ -38,17 +45,26 @@
         </header>
 
         <main>
+            <!-- Game ScoreBoard-->
             <div id="score"></div>
+
+            <!-- Control Buttons Left -->
+            <button onclick="shoot()">SHOOT</button>
+            <button onclick="moveleft()">LEFT</button>
+
+            <!-- Game Canvas-->
             <canvas id="mycanvas">
                 Your browser does not support the HTML5 canvas tag.
             </canvas>
-                <button onclick="moveleft()">LEFT</button>
-                <button onclick="moveright()">RIGHT</button>
-                <button onclick="shoot()">SHOOT</button>
+
+            <!-- Control Buttons Right -->
+            <button onclick="moveright()">RIGHT</button>
+            <button onclick="shoot()">SHOOT</button>
+            <button onclick="startGame()" id="retry_btn" class="hidden">Retry</button>
     
             <!-- Images to be used on the canvas via JS (Hidden by default on HTML) -->
-            <img id="spacecraft" src="img/spacecraft.png" alt="spacecraft" />
-            <img id="space-invader" src="img/space-invader.png" alt="space-invader" />
+            <img id="spacecraft" src="img/spacecraft.png" alt="spacecraft" class="hidden" />
+            <img id="space-invader" src="img/space-invader.png" alt="space-invader" class="hidden" />
         </main>
 
         <footer>
