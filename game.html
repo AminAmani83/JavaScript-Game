@@ -17,6 +17,7 @@
                 color: white;
                 padding: 10px 20px;
                 margin-top: 10px;
+                clear: both;
             }
             header {
                 background-color: teal;
@@ -36,6 +37,18 @@
             button {
                 width: 100px;
                 height: 100px;
+                margin: 5px;
+            }
+            .float {
+                float: left;
+            }
+            #center {
+                position: relative;
+            }
+            #retry_btn {
+                position: absolute;
+                top: 320px;
+                left: 250px;
             }
         </style>
     </head>
@@ -45,23 +58,28 @@
         </header>
 
         <main>
-            <!-- Game ScoreBoard-->
-            <div id="score"></div>
-
             <!-- Control Buttons Left -->
-            <button onclick="shoot()">SHOOT</button>
-            <button onclick="moveleft()">LEFT</button>
+            <div id="left" class="float">
+                <p id="level">Level: 1</p>
+                <button onclick="shoot()">SHOOT</button>
+                <button onclick="moveleft()">LEFT</button>
+            </div>
 
-            <!-- Game Canvas-->
-            <canvas id="mycanvas">
-                Your browser does not support the HTML5 canvas tag.
-            </canvas>
+            <!-- Game Canvas -->
+            <div id="center" class="float">
+                <button onclick="startGame()" id="retry_btn" class="hidden">Retry</button>
+                <canvas id="mycanvas">
+                    Your browser does not support the HTML5 canvas tag.
+                </canvas>
+            </div>
 
             <!-- Control Buttons Right -->
-            <button onclick="moveright()">RIGHT</button>
-            <button onclick="shoot()">SHOOT</button>
-            <button onclick="startGame()" id="retry_btn" class="hidden">Retry</button>
-    
+            <div id="right" class="float">
+                <p id="score">Score: </p>
+                <button onclick="moveright()">RIGHT</button>
+                <button onclick="shoot()">SHOOT</button>
+            </div>
+
             <!-- Images to be used on the canvas via JS (Hidden by default on HTML) -->
             <img id="spacecraft" src="img/spacecraft.png" alt="spacecraft" class="hidden" />
             <img id="space-invader" src="img/space-invader.png" alt="space-invader" class="hidden" />

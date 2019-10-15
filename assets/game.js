@@ -1,6 +1,6 @@
 console.log("game.js has loaded");
 var spaceInvaders = []; // array to store spaceinvaders
-var scoreDiv;
+var scorePElement;
 
 // One Object (Game Area):
 var gameArea = {
@@ -86,7 +86,7 @@ function updateFrame() {
     for (i in spaceInvaders){
         spaceInvaders[i].update();
     }
-    scoreDiv.innerText = "Your score is " + gameArea.score;
+    scorePElement.innerText = "Your score is " + gameArea.score;
 }
 
 
@@ -141,7 +141,7 @@ function startGame(){
     spaceInvaders = []; // Empty the array that stores spaceinvaders
     // Score Setup
     gameArea.score = 0; // Reset score to zero
-    scoreDiv = document.getElementById('score');
+    scorePElement = document.getElementById('score');
     // Buttons
     let buttons = document.getElementsByTagName("button");
     for(let i = 0;  i < buttons.length; i++){
@@ -167,10 +167,22 @@ function shoot(){
         let lowestIndex = indexesYLocation.indexOf( Math.max(...indexesYLocation) ); // In case of multiple spaceInvaders, hit the lowest one
         spaceInvaders.splice(indexes[lowestIndex], 1);
         gameArea.score++;
-        console.log("Score: " + gameArea.score);
+        // console.log("Score: " + gameArea.score);
         updateFrame();
     }
  }
 
 
 startGame();
+
+document.addEventListener('keydown', function(event){
+    if(event.keyCode === 37){
+        moveleft();
+    }
+    if(event.keyCode === 39){
+        moveright();
+    }
+    if(event.keyCode === 32){
+        shoot();
+    }
+});
