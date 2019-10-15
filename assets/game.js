@@ -87,7 +87,6 @@ var gameArea = {
         if (gameArea.highScore == gameArea.score){
             var username = prompt("New High Score! Enter username: ");
             hScoreElement.innerText = "Best Score: " + gameArea.highscore + username.val;
-        
         }
         */
     }
@@ -201,7 +200,7 @@ function generateInvaders(){ // generating invaders
     updateFrame(); // Redraw Everything
 }
 
-// SpaceCraft Movement Controllers
+// SpaceCraft Movement Controller
 function moveleft() {
     if (gameArea.disableKeyPress) {
         return; // do nothing
@@ -213,6 +212,7 @@ function moveleft() {
     updateFrame(); // Redraw Everything
   }
     
+// SpaceCraft Movement Controller
 function moveright() {
     if (gameArea.disableKeyPress) {
         return; // do nothing
@@ -225,7 +225,7 @@ function moveright() {
   }
 
 
-// Shoot function
+// Shoot, draw Laser Beam, Calculate Hit or Miss, Draw Explosion if Hit
 function shoot(){
     // Calculate Shooting Results & Kill
     let indexes = []; // Array of Indexes of SpaceInvaders that are in front of the spaceCraft
@@ -256,14 +256,12 @@ function shoot(){
             explosion.visible = false;
             updateFrame(); // Redraw Everything
         }, 300);
-
         // Prepare the laser beam to be drawn from the Spacecraft to the SpaceInvader
         laserBeam.xLocation = spacecraft.xLocation;
         laserBeam.yLocation = explosion.yLocation + 60;
         laserBeam.height = gameArea.canvas.height - spacecraft.height - 60 - explosion.yLocation;
         laserBeam.visible = true;
         updateFrame(); // Redraw Everything
-
     } else { // It's a Miss...
         // Prepare the laser beam to be drawn from the spacecraft to the top of the canvas
         laserBeam.xLocation = spacecraft.xLocation;
@@ -279,8 +277,7 @@ function shoot(){
     }, 100);
  }
 
-
-
+// Setup score, Start SpaceInvader Generation & Movements,  
 function startGame(){ // Called directly from HTML (Start & Retry Buttons)
     // Canvas Setup
     explosion.visible = false; // If Spacecraft explosion leftover from previous gameplay
@@ -308,17 +305,17 @@ function startGame(){ // Called directly from HTML (Start & Retry Buttons)
     let invaderCounter = 0;
     intervalGen = setInterval(function(){
         invaderCounter++;
-        if (gameArea.NumberOfSpaceInvadersPerLevel >= invaderCounter){
+        if (gameArea.NumberOfSpaceInvadersPerLevel >= invaderCounter){ // Only generate a certain number of SpaceInvaders for each level
             generateInvaders();
-        } else {
+        } else { // Do not generate any more SpaceInvaders and...
             if (spaceInvaders.length == 0){ // Array is Empty = All SpaceInvaders have been killed
-                gameArea.nextLevel(); // Next Level
+                gameArea.nextLevel(); // Go to Next Level
             }
         }
     }, gameArea.invaderGenerationSpeed);
 }
 
-// Keyboard KeyPress Events
+// Keyboard KeyPress Events (left/right/shoot)
 document.addEventListener("keydown", function(event){
     if (gameArea.disableKeyPress) {
         return; // do nothing
