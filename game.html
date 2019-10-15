@@ -45,6 +45,11 @@
             #center {
                 position: relative;
             }
+            #start_btn {
+                position: absolute;
+                top: 320px;
+                left: 250px;
+            }
             #retry_btn {
                 position: absolute;
                 top: 320px;
@@ -61,12 +66,14 @@
             <!-- Left: Control Buttons -->
             <div id="left" class="float">
                 <p id="level">Level: 1</p>
+                <br>
                 <button onclick="shoot()">SHOOT</button>
                 <button onclick="moveleft()">LEFT</button>
             </div>
 
             <!-- Center: Game Canvas -->
             <div id="center" class="float">
+                <button onclick="startGame()" id="start_btn" class="visible">Start</button>
                 <button onclick="startGame()" id="retry_btn" class="hidden">Retry</button>
                 <canvas id="mycanvas">
                     Your browser does not support the HTML5 canvas tag.
@@ -75,7 +82,9 @@
 
             <!-- Right: Control Buttons -->
             <div id="right" class="float">
-                <p id="score">Score: </p>
+                <p id="score">Your Score: </p>
+                <p id="highscore"></p>
+
                 <button onclick="moveright()">RIGHT</button>
                 <button onclick="shoot()">SHOOT</button>
             </div>
@@ -83,6 +92,8 @@
             <!-- Images to be used on the canvas via JS (Hidden by default on HTML) -->
             <img id="spacecraft" src="img/spacecraft.png" alt="spacecraft" class="hidden" />
             <img id="space-invader" src="img/space-invader.png" alt="space-invader" class="hidden" />
+            <img id="bullet" src="img/bullet.png" alt="bullet" class="hidden" />
+
         </main>
 
         <footer>

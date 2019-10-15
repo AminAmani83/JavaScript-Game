@@ -7,6 +7,7 @@ var gameArea = {
     // Vars
     canvas : document.getElementById("mycanvas"),
     score : 0,
+    highscore: 0,
     // Methods
     init : function(){ // Initialize Canvas
         this.canvas.width = 600;
@@ -31,7 +32,8 @@ var gameArea = {
         }
         document.getElementById("retry_btn").setAttribute("class", "visible"); // Hide the Retry Button
         document.getElementById("retry_btn").disabled = false; // Enable the Retry Button bcs all button were previously disabled
-        this.disableKeyPress = true;
+        this.disableKeyPress = false;
+        highScore();
     }
 }
 
@@ -64,6 +66,10 @@ function SpaceInvader(xLocation, yLocation) {
 }
 
 function bullet(xLocation, yLocation) { // For Later...
+
+    document.getElementById("bullet");
+    this.height = 30;
+    this.width = 30;    
     this.x = xLocation;
     this.y = yLocation;
     // Methods
@@ -88,6 +94,8 @@ function updateFrame() {
     }
     scorePElement.innerText = "Your score is " + gameArea.score;
 }
+
+
 
 // Change the Positions of All SpaceInvaders (At Every Interval)
 function updateSpaceInvaderPositions() {
@@ -134,10 +142,12 @@ function moveright() {
     updateFrame();
   }
 
+
 // Shoot function
 function shoot(){
     if (gameArea.disableKeyPress) {
-        return; // do nothing
+        shot()
+       // return; // do nothing
     }
     let indexes = []; // Array of Indexes of SpaceInvaders that are in front of the spaceCraft
     let indexesYLocation = []; // Array of the Y location of above spaceInvaders
@@ -155,9 +165,23 @@ function shoot(){
     }
  }
 
+ function highScore(){
+
+    // Check browser support
+    if (typeof(Storage) !== "undefined") {
+        // Store
+        localStorage.setItem("highScore", "score");
+        // Retrieve
+        document.getElementById("highScore").innerHTML = "High Score: " +  localStorage.getItem("highScore");
+    } else {
+    document.getElementById("result").innerHTML = "Sorry, your browser does not support Web Storage...";
+    }
+ }
+
+ gameArea.init(); //outside of function so it's always on screen
+
  function startGame(){
     // Canvas Setup
-    gameArea.init();
     spacecraft.update(); // Add the Spacecraft
     spaceInvaders = []; // Empty the array that stores spaceinvaders
     // Score Setup
@@ -169,6 +193,8 @@ function shoot(){
         buttons[i].disabled = false;
     }
     document.getElementById("retry_btn").setAttribute("class", "hidden"); // Hide the Retry Button
+    document.getElementById("start_btn").setAttribute("class", "hidden"); // Hide the Retry Button
+
     // Timer for Generating & Changing SpaceInvader Positions Every X sec.
     interval = setInterval(updateSpaceInvaderPositions, invaderSpeed); // default value: 1000 (lowest: 50)
     intervalGen = setInterval(generateInvaders, newSpaceInvaderEveryMillisec);
@@ -196,4 +222,3 @@ document.addEventListener("keydown", function(event){
 var newSpaceInvaderEveryMillisec = 2000; // Generate a new SpaceInvader every X milli second
 var invaderSpeed = 20; // Between 1 and 20. (higher is slower)
 
-startGame();
