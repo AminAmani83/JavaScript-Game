@@ -25,47 +25,61 @@ var gameArea = {
     nextLevel : function(){ // Show Message On Screen
         clearInterval(interval); // Stop Frame Refresh
         clearInterval(intervalGen); // Stop Generating new SpaceInvaders
+        // Buttons & KeyPress
+        let buttons = document.getElementsByTagName("button");
+        for(let i = 0;  i < buttons.length; i++) {
+            buttons[i].disabled = true;
+        }
+        this.disableKeyPress = true;
         // Show Message on Screen
         this.ctx.font = "30px Arial";
         this.ctx.fillStyle = "black";
         this.ctx.textAlign = "center";
         this.ctx.fillText("Congrats!", this.canvas.width/2, this.canvas.height/2); // center coordinates
         // Prepare Next Level Difficulty
-        this.invaderGenerationSpeed -= 200;
-        this.invaderMovementSpeed -= 2;
+        if (this.invaderGenerationSpeed > 200){
+            this.invaderGenerationSpeed -= 200;
+        }
+        if (this.invaderMovementSpeed > 2){
+            this.invaderMovementSpeed -= 2;
+        }
         // Prepare Level Number
         this.level++;
-        // Buttons & KeyPress
-        let buttons = document.getElementsByTagName("button");
-        for(let i = 0;  i < buttons.length; i++) {
-            buttons[i].disabled = true;
+        // NextLevel Button or GameFinished Message
+        if (gameArea.level <= 10){ // Not The Final Level
+            document.getElementById("nextLevel_btn").setAttribute("class", "visible"); // Show the Retry Button
+            document.getElementById("nextLevel_btn").disabled = false; // Enable the Retry Button bcs all button were previously disabled
+        } else { // The Final Level
+            this.ctx.fillText("You Finished The Game", this.canvas.width/2, this.canvas.height/2+50); // center coordinates
         }
-        document.getElementById("nextLevel_btn").setAttribute("class", "visible"); // Show the Retry Button
-        document.getElementById("nextLevel_btn").disabled = false; // Enable the Retry Button bcs all button were previously disabled
-        this.disableKeyPress = true;
     },
     gameOver : function(){ // Show Message On Screen
         clearInterval(interval); // Stop Frame Refresh
         clearInterval(intervalGen); // Stop Generating new SpaceInvaders
-        gameArea.level = 1; // reset to level 1
+        // Reset Level & Difficulty
+        gameArea.level = 1;
+        this.invaderGenerationSpeed = 2000;
+        this.invaderMovementSpeed = 20;
+        this.NumberOfSpaceInvadersPerLevel = 5;
         // SpaceCraft Explosion
         explosion.visible = true;
         explosion.xLocation = spacecraft.xLocation;
         explosion.yLocation = 540;
         updateFrame();
-        // Show Message on Screen
-        this.ctx.font = "30px Arial";
-        this.ctx.fillStyle = "black";
-        this.ctx.textAlign = "center";
-        this.ctx.fillText("Game Over", this.canvas.width/2, this.canvas.height/2); // center coordinates
         // Buttons & KeyPress
         let buttons = document.getElementsByTagName("button");
         for(let i = 0;  i < buttons.length; i++) {
             buttons[i].disabled = true;
         }
+        this.disableKeyPress = true;
+        // Show Message on Screen
+        this.ctx.font = "30px Arial";
+        this.ctx.fillStyle = "black";
+        this.ctx.textAlign = "center";
+        this.ctx.fillText("Game Over", this.canvas.width/2, this.canvas.height/2); // center coordinates
+        // Show Retry Button
         document.getElementById("retry_btn").setAttribute("class", "visible"); // Show the Retry Button
         document.getElementById("retry_btn").disabled = false; // Enable the Retry Button bcs all button were previously disabled
-        this.disableKeyPress = true;
         highScore();
     }
 }
@@ -154,7 +168,7 @@ function updateFrame() {
 // Change the Positions of All SpaceInvaders (At Every Interval)
 function updateSpaceInvaderPositions() {
     for (i in spaceInvaders) {
-        spaceInvaders[i].yLocation += 1; // pixel (default value: 60)
+        spaceInvaders[i].yLocation += 1; // pixel (default value: 60 per 1000 millisecond)
     }
     updateFrame(); // Something has changed, redraw the whole canvas
     // Check for GameOver
