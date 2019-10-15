@@ -1,6 +1,7 @@
 console.log("game.js has loaded");
 var spaceInvaders = []; // array to store spaceinvaders
 var scorePElement;
+var hScoreElement;
 
 // One Object (Game Area):
 var gameArea = {
@@ -81,6 +82,14 @@ var gameArea = {
         document.getElementById("retry_btn").setAttribute("class", "visible"); // Show the Retry Button
         document.getElementById("retry_btn").disabled = false; // Enable the Retry Button bcs all button were previously disabled
         highScore();
+        /**
+        //prompt for highScore username
+        if (gameArea.highScore == gameArea.score){
+            var username = prompt("New High Score! Enter username: ");
+            hScoreElement.innerText = "Best Score: " + gameArea.highscore + username.val;
+        
+        }
+        */
     }
 }
 
@@ -189,7 +198,7 @@ function generateInvaders(){ // generating invaders
     let randPos = Math.floor(Math.random() * 10) * 60; // random X position
     let si = new SpaceInvader(randPos , 0);
     spaceInvaders.push(si); // add spaceinvader to array
-    updateFrame();
+    updateFrame(); // Redraw Everything
 }
 
 // SpaceCraft Movement Controllers
@@ -197,22 +206,22 @@ function moveleft() {
     if (gameArea.disableKeyPress) {
         return; // do nothing
     }
-    spacecraft.xLocation -= 60;
+    spacecraft.xLocation -= 60; //moves spacecraft left
     if(spacecraft.xLocation < 0){
         spacecraft.xLocation = 0;
     }
-    updateFrame();
+    updateFrame(); // Redraw Everything
   }
     
 function moveright() {
     if (gameArea.disableKeyPress) {
         return; // do nothing
     }
-    spacecraft.xLocation += 60;
+    spacecraft.xLocation += 60; //moves spacecraft right
     if(spacecraft.xLocation > gameArea.canvas.width - spacecraft.width){
         spacecraft.xLocation = gameArea.canvas.width - spacecraft.width;
     }
-    updateFrame();
+    updateFrame(); // Redraw Everything
   }
 
 
@@ -221,7 +230,7 @@ function shoot(){
     // Calculate Shooting Results & Kill
     let indexes = []; // Array of Indexes of SpaceInvaders that are in front of the spaceCraft
     let indexesYLocation = []; // Array of the Y location of above spaceInvaders
-    for (let i = 0;  i < spaceInvaders.length; i++){
+    for (let i = 0;  i < spaceInvaders.length; i++){ //loop to determine if "shot" hits target
         if(spacecraft.xLocation == spaceInvaders[i].xLocation) {
             indexes.push(i);
             indexesYLocation.push(spaceInvaders[i].yLocation); 
@@ -235,8 +244,12 @@ function shoot(){
         explosion.yLocation = spaceInvaders[indexes[lowestIndex]].yLocation; // yLocation of the spaceInvader that was shot
         // Remove SpaceInvader object from Array
         spaceInvaders.splice(indexes[lowestIndex], 1);
-        // Update Score
+        // Update Score and High Score
         gameArea.score++;
+        if (gameArea.score > gameArea.highscore){
+            gameArea.highscore = gameArea.score;
+        }
+        hScoreElement.innerText = "Best Score: " + gameArea.highscore; //stores for session, can use localStorage for long term
         updateFrame(); // Redraw Everything
         // Hide Explosion after a short period
         setTimeout(function(){
@@ -266,17 +279,7 @@ function shoot(){
     }, 100);
  }
 
- function highScore(){ // Work in Progress...
-    // Check browser support
-    if (typeof(Storage) !== "undefined") {
-        // Store
-        localStorage.setItem("highScore", "score");
-        // Retrieve
-        document.getElementById("highScore").innerHTML = "High Score: " +  localStorage.getItem("highScore");
-    } else {
-    document.getElementById("result").innerHTML = "Sorry, your browser does not support Web Storage...";
-    }
- }
+
 
 function startGame(){ // Called directly from HTML (Start & Retry Buttons)
     // Canvas Setup
@@ -290,6 +293,7 @@ function startGame(){ // Called directly from HTML (Start & Retry Buttons)
         gameArea.score = 0; // Reset score to zero
     }
     scorePElement = document.getElementById("score");
+    hScoreElement = document.getElementById("highScore");
     // Buttons & Controls
     let buttons = document.getElementsByTagName("button");
     for(let i = 0;  i < buttons.length; i++){
