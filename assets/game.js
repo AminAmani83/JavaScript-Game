@@ -20,6 +20,11 @@ var gameArea = {
     gameOver : function(){ // Show Message On Screen
         clearInterval(interval); // Stop Frame Refresh
         clearInterval(intervalGen); // Stop Generating new SpaceInvaders
+        // SpaceCraft Explosion
+        explosion.visible = true;
+        explosion.xLocation = spacecraft.xLocation;
+        explosion.yLocation = 540;
+        updateFrame();
         // Show Message on Screen
         this.ctx.font = "30px Arial";
         this.ctx.fillStyle = "black";
@@ -30,9 +35,9 @@ var gameArea = {
         for(let i = 0;  i < buttons.length; i++) {
             buttons[i].disabled = true;
         }
-        document.getElementById("retry_btn").setAttribute("class", "visible"); // Hide the Retry Button
+        document.getElementById("retry_btn").setAttribute("class", "visible"); // Show the Retry Button
         document.getElementById("retry_btn").disabled = false; // Enable the Retry Button bcs all button were previously disabled
-        this.disableKeyPress = false;
+        this.disableKeyPress = true;
         highScore();
     }
 }
@@ -41,7 +46,7 @@ var gameArea = {
 var spacecraft = {
     // Vars
     imgSpaceCraft : document.getElementById('spacecraft'),
-    xLocation : 240,
+    xLocation : 240, // initial position on screen
     yLocation : 540,
     height : 60,
     width : 60,
@@ -65,20 +70,37 @@ function SpaceInvader(xLocation, yLocation) {
     };
 }
 
-function bullet(xLocation, yLocation) { // For Later...
-
-    document.getElementById("bullet");
-    this.height = 30;
-    this.width = 30;    
-    this.x = xLocation;
-    this.y = yLocation;
+// One Object (Explosion):
+var explosion = {
+    // Vars
+    imgExplosion : document.getElementById('explosion'),
+    xLocation : 0, // initial position on screen
+    yLocation : 0,
+    height : 60,
+    width : 60,
+    visible : false, // by default
     // Methods
-    this.show = function(){ // Redraw the Object on the Screen
-        fill(50, 0, 200);
-        ellipse(this.x, this.y, 16, 16);
+    update : function() { // Redraw the Object on the Screen if Needed
+        if (this.visible == true) {
+            gameArea.ctx.drawImage(this.imgExplosion, this.xLocation, this.yLocation);
+        }
     }
-    this.move = function(){
-        this.y += 5;
+}
+
+// One Object (Laser Beam):
+var laserBeam = {
+    // Vars
+    imgLaserBeam : document.getElementById('laser-beam'),
+    xLocation : 0, // initial position on screen
+    yLocation : 0,
+    height : 60, // initial value (will be different for each shot)
+    width : 60,
+    visible : false, // by default
+    // Methods
+    update : function() { // Redraw the Object on the Screen if Needed
+        if (this.visible == true) {
+            gameArea.ctx.drawImage(this.imgLaserBeam, this.xLocation, this.yLocation, this.width, this.height);
+        }
     }
 }
 
@@ -92,20 +114,29 @@ function updateFrame() {
     for (i in spaceInvaders){
         spaceInvaders[i].update();
     }
-    scorePElement.innerText = "Your score is " + gameArea.score;
+    // Draw Explosion (If Needed)
+    explosion.update();
+    // Draw LaserBeam (If Needed)
+    laserBeam.update();
+    // Update Score
+    scorePElement.innerText = "Score: " + gameArea.score;
 }
-
 
 
 // Change the Positions of All SpaceInvaders (At Every Interval)
 function updateSpaceInvaderPositions() {
     for (i in spaceInvaders) {
-        spaceInvaders[i].yLocation += 1; // default value: 60
+        spaceInvaders[i].yLocation += 1; // pixel (default value: 60)
     }
     updateFrame(); // Something has changed, redraw the whole canvas
     // Check for GameOver
     for (i in spaceInvaders) {
-        if (spaceInvaders[i].yLocation >= 540) {
+        if (spaceInvaders[i].yLocation >= spacecraft.yLocation - 60 &&
+            spacecraft.xLocation == spaceInvaders[i].xLocation) { // SpaceInvader Hits SpaceCraft
+                gameArea.gameOver();  // Game Over
+                break; // Don't check the rest of the spaceInvaders
+        }
+        if (spaceInvaders[i].yLocation >= 540) { // SpaceInvader Hits the Groud
             gameArea.gameOver();  // Game Over
             break; // Don't check the rest of the spaceInvaders
         }
@@ -113,7 +144,7 @@ function updateSpaceInvaderPositions() {
 }
 
 function generateInvaders(){ // generating invaders
-    let randPos = Math.floor(Math.random() * 10)*60; // random X position
+    let randPos = Math.floor(Math.random() * 10) * 60; // random X position
     let si = new SpaceInvader(randPos , 0);
     spaceInvaders.push(si); // add spaceinvader to array
     updateFrame();
@@ -145,10 +176,7 @@ function moveright() {
 
 // Shoot function
 function shoot(){
-    if (gameArea.disableKeyPress) {
-        shot()
-       // return; // do nothing
-    }
+    // Calculate Shooting Results & Kill
     let indexes = []; // Array of Indexes of SpaceInvaders that are in front of the spaceCraft
     let indexesYLocation = []; // Array of the Y location of above spaceInvaders
     for (let i = 0;  i < spaceInvaders.length; i++){
@@ -159,14 +187,49 @@ function shoot(){
     }
     if(indexes.length > 0) { // It's a Hit!
         let lowestIndex = indexesYLocation.indexOf( Math.max(...indexesYLocation) ); // In case of multiple spaceInvaders, hit the lowest one
+        // Prepare The Explosion
+        explosion.visible = true;
+        explosion.xLocation = spaceInvaders[indexes[lowestIndex]].xLocation; // xLocation of the spaceInvader that was shot
+        explosion.yLocation = spaceInvaders[indexes[lowestIndex]].yLocation; // yLocation of the spaceInvader that was shot
+        // Remove SpaceInvader object from Array
         spaceInvaders.splice(indexes[lowestIndex], 1);
+        // Update Score
         gameArea.score++;
-        updateFrame();
+        updateFrame(); // Redraw Everything
+        // Hide Explosion after a short period
+        setTimeout(function(){
+            explosion.visible = false;
+            updateFrame(); // Redraw Everything
+        }, 300);
+
+        // Prepare the laser beam to be drawn from the Spacecraft to the SpaceInvader
+        laserBeam.xLocation = spacecraft.xLocation;
+        laserBeam.yLocation = explosion.yLocation + 60;
+        laserBeam.height = gameArea.canvas.height - spacecraft.height - 60 - explosion.yLocation;
+        laserBeam.visible = true;
+        updateFrame(); // Redraw Everything
+        // Hide LaserBeam after a short period
+        setTimeout(function(){
+            laserBeam.visible = false;
+            updateFrame(); // Redraw Everything
+        }, 100);
+
+    } else { // It's a Miss!
+        // Prepare the laser beam to be drawn from the spacecraft to the top of the canvas
+        laserBeam.xLocation = spacecraft.xLocation;
+        laserBeam.yLocation = 0; // top of canvas
+        laserBeam.height = gameArea.canvas.height - spacecraft.height;
+        laserBeam.visible = true;
+        updateFrame(); // Redraw Everything
+        // Hide LaserBeam after a short period
+        setTimeout(function(){
+            laserBeam.visible = false;
+            updateFrame(); // Redraw Everything
+        }, 100);
     }
  }
 
  function highScore(){
-
     // Check browser support
     if (typeof(Storage) !== "undefined") {
         // Store
@@ -178,30 +241,33 @@ function shoot(){
     }
  }
 
- gameArea.init(); //outside of function so it's always on screen
-
- function startGame(){
+function startGame(){ // Called directly from HTML (Start & Retry Buttons)
     // Canvas Setup
+    explosion.visible = false; // If Spacecraft explosion leftover from previous gameplay
+    spacecraft.xLocation = 240; // Back to its initial position (in case of retry)
     spacecraft.update(); // Add the Spacecraft
     spaceInvaders = []; // Empty the array that stores spaceinvaders
     // Score Setup
     gameArea.score = 0; // Reset score to zero
-    scorePElement = document.getElementById('score');
+    scorePElement = document.getElementById("score");
     // Buttons
     let buttons = document.getElementsByTagName("button");
     for(let i = 0;  i < buttons.length; i++){
         buttons[i].disabled = false;
     }
     document.getElementById("retry_btn").setAttribute("class", "hidden"); // Hide the Retry Button
-    document.getElementById("start_btn").setAttribute("class", "hidden"); // Hide the Retry Button
-
-    // Timer for Generating & Changing SpaceInvader Positions Every X sec.
-    interval = setInterval(updateSpaceInvaderPositions, invaderSpeed); // default value: 1000 (lowest: 50)
+    document.getElementById("start_btn").setAttribute("class", "hidden"); // Hide the Start Button
+    gameArea.disableKeyPress = false; // Activate KeyBoard KeyPress Again
+    // Timer for Generating & Changing SpaceInvader Positions Every X millisec.
+    interval = setInterval(updateSpaceInvaderPositions, invaderSpeed); // default value: 1000
     intervalGen = setInterval(generateInvaders, newSpaceInvaderEveryMillisec);
 }
 
 // Keyboard KeyPress Events
 document.addEventListener("keydown", function(event){
+    if (gameArea.disableKeyPress) {
+        return; // do nothing
+    } // otherwise:
     if(event.keyCode === 37){
         moveleft();
     }
@@ -211,6 +277,7 @@ document.addEventListener("keydown", function(event){
     if(event.keyCode === 32){
         shoot();
     }
+    event.preventDefault();
 });
 
 
@@ -220,5 +287,6 @@ document.addEventListener("keydown", function(event){
 
 // Change based on level difficulty
 var newSpaceInvaderEveryMillisec = 2000; // Generate a new SpaceInvader every X milli second
-var invaderSpeed = 20; // Between 1 and 20. (higher is slower)
+var invaderSpeed = 20; // Between 1 and 20. (higher is slower) Every this millisec, move 1 pixel
 
+gameArea.init();

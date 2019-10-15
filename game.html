@@ -28,6 +28,10 @@
             main {
                 text-align: center;
             }
+            main p {
+                font-size: 16pt;
+                font-weight: bold;
+            }
             .hidden {
                 display: none;
             }
@@ -45,12 +49,7 @@
             #center {
                 position: relative;
             }
-            #start_btn {
-                position: absolute;
-                top: 320px;
-                left: 250px;
-            }
-            #retry_btn {
+            #start_btn, #retry_btn {
                 position: absolute;
                 top: 320px;
                 left: 250px;
@@ -67,8 +66,8 @@
             <div id="left" class="float">
                 <p id="level">Level: 1</p>
                 <br>
-                <button onclick="shoot()">SHOOT</button>
-                <button onclick="moveleft()">LEFT</button>
+                <button onclick="shoot()" class="control_btn">SHOOT</button>
+                <button onclick="moveleft()" class="control_btn">LEFT</button>
             </div>
 
             <!-- Center: Game Canvas -->
@@ -82,18 +81,18 @@
 
             <!-- Right: Control Buttons -->
             <div id="right" class="float">
-                <p id="score">Your Score: </p>
+                <p id="score">Score: 0</p>
                 <p id="highscore"></p>
 
-                <button onclick="moveright()">RIGHT</button>
-                <button onclick="shoot()">SHOOT</button>
+                <button onclick="moveright()" class="control_btn">RIGHT</button>
+                <button onclick="shoot()" class="control_btn">SHOOT</button>
             </div>
 
             <!-- Images to be used on the canvas via JS (Hidden by default on HTML) -->
             <img id="spacecraft" src="img/spacecraft.png" alt="spacecraft" class="hidden" />
             <img id="space-invader" src="img/space-invader.png" alt="space-invader" class="hidden" />
-            <img id="bullet" src="img/bullet.png" alt="bullet" class="hidden" />
-
+            <img id="explosion" src="img/explosion.png" alt="explosion" class="hidden" />
+            <img id="laser-beam" src="img/laser_beam.png" alt="laser-beam" class="hidden" />
         </main>
 
         <footer>
