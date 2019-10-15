@@ -8,6 +8,11 @@ var gameArea = {
     canvas : document.getElementById("mycanvas"),
     score : 0,
     highscore: 0,
+    // Difficulty Level Setup for Level-1
+    level : 1,
+    invaderGenerationSpeed : 2000, // Generate a new SpaceInvader every X milli second
+    invaderMovementSpeed : 20, //  Every X millisec, move 1 pixel. (Higher is Slower, choose between 1 and 20.)
+    NumberOfSpaceInvadersPerLevel : 5, // After Killing how many SpaceInvaders > Next Level Starts
     // Methods
     init : function(){ // Initialize Canvas
         this.canvas.width = 600;
@@ -17,9 +22,32 @@ var gameArea = {
     clear : function(){ // Delete Everything from Canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     },
+    nextLevel : function(){ // Show Message On Screen
+        clearInterval(interval); // Stop Frame Refresh
+        clearInterval(intervalGen); // Stop Generating new SpaceInvaders
+        // Show Message on Screen
+        this.ctx.font = "30px Arial";
+        this.ctx.fillStyle = "black";
+        this.ctx.textAlign = "center";
+        this.ctx.fillText("Congrats!", this.canvas.width/2, this.canvas.height/2); // center coordinates
+        // Prepare Next Level Difficulty
+        this.invaderGenerationSpeed -= 200;
+        this.invaderMovementSpeed -= 2;
+        // Prepare Level Number
+        this.level++;
+        // Buttons & KeyPress
+        let buttons = document.getElementsByTagName("button");
+        for(let i = 0;  i < buttons.length; i++) {
+            buttons[i].disabled = true;
+        }
+        document.getElementById("nextLevel_btn").setAttribute("class", "visible"); // Show the Retry Button
+        document.getElementById("nextLevel_btn").disabled = false; // Enable the Retry Button bcs all button were previously disabled
+        this.disableKeyPress = true;
+    },
     gameOver : function(){ // Show Message On Screen
         clearInterval(interval); // Stop Frame Refresh
         clearInterval(intervalGen); // Stop Generating new SpaceInvaders
+        gameArea.level = 1; // reset to level 1
         // SpaceCraft Explosion
         explosion.visible = true;
         explosion.xLocation = spacecraft.xLocation;
@@ -208,28 +236,23 @@ function shoot(){
         laserBeam.height = gameArea.canvas.height - spacecraft.height - 60 - explosion.yLocation;
         laserBeam.visible = true;
         updateFrame(); // Redraw Everything
-        // Hide LaserBeam after a short period
-        setTimeout(function(){
-            laserBeam.visible = false;
-            updateFrame(); // Redraw Everything
-        }, 100);
 
-    } else { // It's a Miss!
+    } else { // It's a Miss...
         // Prepare the laser beam to be drawn from the spacecraft to the top of the canvas
         laserBeam.xLocation = spacecraft.xLocation;
         laserBeam.yLocation = 0; // top of canvas
         laserBeam.height = gameArea.canvas.height - spacecraft.height;
         laserBeam.visible = true;
         updateFrame(); // Redraw Everything
-        // Hide LaserBeam after a short period
-        setTimeout(function(){
-            laserBeam.visible = false;
-            updateFrame(); // Redraw Everything
-        }, 100);
     }
+    // Hide LaserBeam after a short period
+    setTimeout(function(){
+        laserBeam.visible = false;
+        updateFrame(); // Redraw Everything
+    }, 100);
  }
 
- function highScore(){
+ function highScore(){ // Work in Progress...
     // Check browser support
     if (typeof(Storage) !== "undefined") {
         // Store
@@ -246,21 +269,35 @@ function startGame(){ // Called directly from HTML (Start & Retry Buttons)
     explosion.visible = false; // If Spacecraft explosion leftover from previous gameplay
     spacecraft.xLocation = 240; // Back to its initial position (in case of retry)
     spacecraft.update(); // Add the Spacecraft
-    spaceInvaders = []; // Empty the array that stores spaceinvaders
+    spaceInvaders = []; // Empty the array that stores spaceInvaders
+    document.getElementById("level").innerText = "Level: " + gameArea.level;
     // Score Setup
-    gameArea.score = 0; // Reset score to zero
+    if (gameArea.level == 1){
+        gameArea.score = 0; // Reset score to zero
+    }
     scorePElement = document.getElementById("score");
-    // Buttons
+    // Buttons & Controls
     let buttons = document.getElementsByTagName("button");
     for(let i = 0;  i < buttons.length; i++){
         buttons[i].disabled = false;
     }
     document.getElementById("retry_btn").setAttribute("class", "hidden"); // Hide the Retry Button
     document.getElementById("start_btn").setAttribute("class", "hidden"); // Hide the Start Button
+    document.getElementById("nextLevel_btn").setAttribute("class", "hidden"); // Hide the NextLevel Button
     gameArea.disableKeyPress = false; // Activate KeyBoard KeyPress Again
     // Timer for Generating & Changing SpaceInvader Positions Every X millisec.
-    interval = setInterval(updateSpaceInvaderPositions, invaderSpeed); // default value: 1000
-    intervalGen = setInterval(generateInvaders, newSpaceInvaderEveryMillisec);
+    interval = setInterval(updateSpaceInvaderPositions, gameArea.invaderMovementSpeed);
+    let invaderCounter = 0;
+    intervalGen = setInterval(function(){
+        invaderCounter++;
+        if (gameArea.NumberOfSpaceInvadersPerLevel >= invaderCounter){
+            generateInvaders();
+        } else {
+            if (spaceInvaders.length == 0){ // Array is Empty = All SpaceInvaders have been killed
+                gameArea.nextLevel(); // Next Level
+            }
+        }
+    }, gameArea.invaderGenerationSpeed);
 }
 
 // Keyboard KeyPress Events
@@ -284,9 +321,5 @@ document.addEventListener("keydown", function(event){
 //////////////////////////////////////////////////////////////
                     /////// START ///////
 //////////////////////////////////////////////////////////////
-
-// Change based on level difficulty
-var newSpaceInvaderEveryMillisec = 2000; // Generate a new SpaceInvader every X milli second
-var invaderSpeed = 20; // Between 1 and 20. (higher is slower) Every this millisec, move 1 pixel
 
 gameArea.init();
