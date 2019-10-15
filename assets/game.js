@@ -19,19 +19,19 @@ var gameArea = {
     gameOver : function(){ // Show Message On Screen
         clearInterval(interval); // Stop Frame Refresh
         clearInterval(intervalGen); // Stop Generating new SpaceInvaders
-        console.log("game over");
         // Show Message on Screen
         this.ctx.font = "30px Arial";
         this.ctx.fillStyle = "black";
         this.ctx.textAlign = "center";
         this.ctx.fillText("Game Over", this.canvas.width/2, this.canvas.height/2); // center coordinates
-        // Buttons
+        // Buttons & KeyPress
         let buttons = document.getElementsByTagName("button");
         for(let i = 0;  i < buttons.length; i++) {
             buttons[i].disabled = true;
         }
         document.getElementById("retry_btn").setAttribute("class", "visible"); // Hide the Retry Button
         document.getElementById("retry_btn").disabled = false; // Enable the Retry Button bcs all button were previously disabled
+        this.disableKeyPress = true;
     }
 }
 
@@ -89,11 +89,10 @@ function updateFrame() {
     scorePElement.innerText = "Your score is " + gameArea.score;
 }
 
-
 // Change the Positions of All SpaceInvaders (At Every Interval)
 function updateSpaceInvaderPositions() {
     for (i in spaceInvaders) {
-        spaceInvaders[i].yLocation += 60;
+        spaceInvaders[i].yLocation += 1; // default value: 60
     }
     updateFrame(); // Something has changed, redraw the whole canvas
     // Check for GameOver
@@ -112,17 +111,22 @@ function generateInvaders(){ // generating invaders
     updateFrame();
 }
 
-
 // SpaceCraft Movement Controllers
 function moveleft() {
+    if (gameArea.disableKeyPress) {
+        return; // do nothing
+    }
     spacecraft.xLocation -= 60;
     if(spacecraft.xLocation < 0){
         spacecraft.xLocation = 0;
     }
     updateFrame();
   }
-  
+    
 function moveright() {
+    if (gameArea.disableKeyPress) {
+        return; // do nothing
+    }
     spacecraft.xLocation += 60;
     if(spacecraft.xLocation > gameArea.canvas.width - spacecraft.width){
         spacecraft.xLocation = gameArea.canvas.width - spacecraft.width;
@@ -130,11 +134,28 @@ function moveright() {
     updateFrame();
   }
 
-///////////////////////////////////////////////////////////////////
-// The Action Happens Here ///////////////////////////////////////
-/////////////////////////////////////////////////////////////////
+// Shoot function
+function shoot(){
+    if (gameArea.disableKeyPress) {
+        return; // do nothing
+    }
+    let indexes = []; // Array of Indexes of SpaceInvaders that are in front of the spaceCraft
+    let indexesYLocation = []; // Array of the Y location of above spaceInvaders
+    for (let i = 0;  i < spaceInvaders.length; i++){
+        if(spacecraft.xLocation == spaceInvaders[i].xLocation) {
+            indexes.push(i);
+            indexesYLocation.push(spaceInvaders[i].yLocation); 
+        }
+    }
+    if(indexes.length > 0) { // It's a Hit!
+        let lowestIndex = indexesYLocation.indexOf( Math.max(...indexesYLocation) ); // In case of multiple spaceInvaders, hit the lowest one
+        spaceInvaders.splice(indexes[lowestIndex], 1);
+        gameArea.score++;
+        updateFrame();
+    }
+ }
 
-function startGame(){
+ function startGame(){
     // Canvas Setup
     gameArea.init();
     spacecraft.update(); // Add the Spacecraft
@@ -149,33 +170,12 @@ function startGame(){
     }
     document.getElementById("retry_btn").setAttribute("class", "hidden"); // Hide the Retry Button
     // Timer for Generating & Changing SpaceInvader Positions Every X sec.
-    interval = setInterval(updateSpaceInvaderPositions, 1000);
-    intervalGen = setInterval(generateInvaders, 3000);
+    interval = setInterval(updateSpaceInvaderPositions, invaderSpeed); // default value: 1000 (lowest: 50)
+    intervalGen = setInterval(generateInvaders, newSpaceInvaderEveryMillisec);
 }
 
-// Shoot function
-function shoot(){
-    let indexes = []; // Array of Indexes of SpaceInvaders that are in front of the spaceCraft
-    let indexesYLocation = []; // Array of the Y location of above spaceInvaders
-    for (let i = 0;  i < spaceInvaders.length; i++){
-        if(spacecraft.xLocation == spaceInvaders[i].xLocation) {
-            indexes.push(i);
-            indexesYLocation.push(spaceInvaders[i].yLocation); 
-        }
-    }
-    if(indexes.length > 0) { // It's a Hit!
-        let lowestIndex = indexesYLocation.indexOf( Math.max(...indexesYLocation) ); // In case of multiple spaceInvaders, hit the lowest one
-        spaceInvaders.splice(indexes[lowestIndex], 1);
-        gameArea.score++;
-        // console.log("Score: " + gameArea.score);
-        updateFrame();
-    }
- }
-
-
-startGame();
-
-document.addEventListener('keydown', function(event){
+// Keyboard KeyPress Events
+document.addEventListener("keydown", function(event){
     if(event.keyCode === 37){
         moveleft();
     }
@@ -186,3 +186,14 @@ document.addEventListener('keydown', function(event){
         shoot();
     }
 });
+
+
+//////////////////////////////////////////////////////////////
+                    /////// START ///////
+//////////////////////////////////////////////////////////////
+
+// Change based on level difficulty
+var newSpaceInvaderEveryMillisec = 2000; // Generate a new SpaceInvader every X milli second
+var invaderSpeed = 20; // Between 1 and 20. (higher is slower)
+
+startGame();
