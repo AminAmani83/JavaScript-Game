@@ -39,6 +39,9 @@ button {
 .float {
     float: left;
 }
+#left, #right {
+    padding: 0 20px;
+}
 #center {
     position: relative;
 }
