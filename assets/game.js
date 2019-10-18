@@ -1,7 +1,15 @@
 console.log("game.js has loaded");
 var spaceInvaders = []; // array to store spaceinvaders
-var scorePElement;
-var hScoreElement;
+// HTML Elements
+var levelPElement = document.getElementById("level");
+var scorePElement = document.getElementById("score");
+var hScoreElement = document.getElementById("highScore");
+var allBtnElements = document.getElementsByTagName("button");
+var retryBtnElement = document.getElementById("retry_btn");
+var startBtnElement = document.getElementById("start_btn");
+var nextLevelBtnElement = document.getElementById("nextLevel_btn");
+var spaceInvaderHeight = 60;
+var spaceInvaderWidth = 60;
 
 // One Object (Game Area):
 var gameArea = {
@@ -9,33 +17,35 @@ var gameArea = {
     canvas : document.getElementById("mycanvas"),
     score : 0,
     highscore: 0,
-    // Difficulty Level Setup for Level-1
-    level : 1,
-    invaderGenerationSpeed : 2000, // Generate a new SpaceInvader every X milli second
-    invaderMovementSpeed : 20, //  Every X millisec, move 1 pixel. (Higher is Slower, choose between 1 and 20.)
-    NumberOfSpaceInvadersPerLevel : 5, // After Killing how many SpaceInvaders > Next Level Starts
     // Methods
     init : function(){ // Initialize Canvas
         this.canvas.width = 600;
         this.canvas.height = 600;
         this.ctx = this.canvas.getContext("2d");
+        // Setup Font Size For On-Screen Messages
+        this.ctx.font = "30px Arial";
+        this.ctx.fillStyle = "black";
+        this.ctx.textAlign = "center";
+        this.resetLevel();
+    },
+    resetLevel : function(){ // Difficulty Level Setup for Level 1
+        this.level = 1;
+        this.invaderGenerationSpeed = 2000; // Generate a new SpaceInvader every X milli second
+        this.invaderMovementSpeed = 20; //  Every X millisec, move 1 pixel. (Higher is Slower, choose between 1 and 20.)
+        this.NumberOfSpaceInvadersPerLevel = 5; // After Killing how many SpaceInvaders > Next Level Starts
     },
     clear : function(){ // Delete Everything from Canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     },
     nextLevel : function(){ // Show Message On Screen
-        clearInterval(interval); // Stop Frame Refresh
+        clearInterval(interval); // Stop Moving SpaceInvaders
         clearInterval(intervalGen); // Stop Generating new SpaceInvaders
-        // Buttons & KeyPress
-        let buttons = document.getElementsByTagName("button");
-        for(let i = 0;  i < buttons.length; i++) {
-            buttons[i].disabled = true;
+        // allBtnElements & KeyPress
+        for(let i = 0;  i < allBtnElements.length; i++) {
+            allBtnElements[i].disabled = true;
         }
         this.disableKeyPress = true;
         // Show Message on Screen
-        this.ctx.font = "30px Arial";
-        this.ctx.fillStyle = "black";
-        this.ctx.textAlign = "center";
         this.ctx.fillText("Congrats!", this.canvas.width/2, this.canvas.height/2); // center coordinates
         // Prepare Next Level Difficulty
         if (this.invaderGenerationSpeed > 200){
@@ -48,40 +58,33 @@ var gameArea = {
         this.level++;
         // NextLevel Button or GameFinished Message
         if (gameArea.level <= 10){ // Not The Final Level
-            document.getElementById("nextLevel_btn").setAttribute("class", "visible"); // Show the Retry Button
-            document.getElementById("nextLevel_btn").disabled = false; // Enable the Retry Button bcs all button were previously disabled
+            nextLevelBtnElement.setAttribute("class", "visible"); // Show the NextLevel Button
+            nextLevelBtnElement.disabled = false; // Enable the NextLevel Button bcs all Button Elements were previously disabled
         } else { // The Final Level
-            this.ctx.fillText("You Finished The Game", this.canvas.width/2, this.canvas.height/2+50); // center coordinates
+            this.ctx.fillText("You Finished The Game", this.canvas.width/2, this.canvas.height/2+50); // center coordinates + 50 px (below the Congrats message)
         }
     },
     gameOver : function(){ // Show Message On Screen
-        clearInterval(interval); // Stop Frame Refresh
+        clearInterval(interval); // Stop Moving SpaceInvaders
         clearInterval(intervalGen); // Stop Generating new SpaceInvaders
         // Reset Level & Difficulty
-        gameArea.level = 1;
-        this.invaderGenerationSpeed = 2000;
-        this.invaderMovementSpeed = 20;
-        this.NumberOfSpaceInvadersPerLevel = 5;
+        this.resetLevel();
         // SpaceCraft Explosion
         explosion.visible = true;
         explosion.xLocation = spacecraft.xLocation;
-        explosion.yLocation = 540;
+        explosion.yLocation = this.canvas.height - spacecraft.height; // 600 - 60 = 540
         updateFrame();
-        // Buttons & KeyPress
-        let buttons = document.getElementsByTagName("button");
-        for(let i = 0;  i < buttons.length; i++) {
-            buttons[i].disabled = true;
+        // allBtnElements & KeyPress
+        for(let i = 0;  i < allBtnElements.length; i++) {
+            allBtnElements[i].disabled = true;
         }
         this.disableKeyPress = true;
         // Show Message on Screen
-        this.ctx.font = "30px Arial";
-        this.ctx.fillStyle = "black";
-        this.ctx.textAlign = "center";
         this.ctx.fillText("Game Over", this.canvas.width/2, this.canvas.height/2); // center coordinates
         // Show Retry Button
-        document.getElementById("retry_btn").setAttribute("class", "visible"); // Show the Retry Button
-        document.getElementById("retry_btn").disabled = false; // Enable the Retry Button bcs all button were previously disabled
-        highScore();
+        retryBtnElement.setAttribute("class", "visible"); // Show the Retry Button
+        retryBtnElement.disabled = false; // Enable the Retry Button bcs all button were previously disabled
+        // highScore();
         /**
         //prompt for highScore username
         if (gameArea.highScore == gameArea.score){
@@ -106,12 +109,17 @@ var spacecraft = {
     }
 }
 
-// Constructor Function(SpaceInvaders):
+/**
+ * Constructor Function (SpaceInvaders):
+ * 
+ * @param {number} xLocation 
+ * @param {number} yLocation 
+ */
 function SpaceInvader(xLocation, yLocation) {
     // Vars
     this.imgSpaceInvader = document.getElementById('space-invader');
-    this.height = 60;
-    this.width = 60;
+    this.height = spaceInvaderHeight;
+    this.width = spaceInvaderWidth;
     this.xLocation = xLocation;
     this.yLocation = yLocation;
     // Methods
@@ -168,8 +176,6 @@ function updateFrame() {
     explosion.update();
     // Draw LaserBeam (If Needed)
     laserBeam.update();
-    // Update Score
-    scorePElement.innerText = "Score: " + gameArea.score;
 }
 
 
@@ -181,19 +187,20 @@ function updateSpaceInvaderPositions() {
     updateFrame(); // Something has changed, redraw the whole canvas
     // Check for GameOver
     for (i in spaceInvaders) {
-        if (spaceInvaders[i].yLocation >= spacecraft.yLocation - 60 &&
+        if (spaceInvaders[i].yLocation >= spacecraft.yLocation - spaceInvaderHeight &&
             spacecraft.xLocation == spaceInvaders[i].xLocation) { // SpaceInvader Hits SpaceCraft
                 gameArea.gameOver();  // Game Over
                 break; // Don't check the rest of the spaceInvaders
         }
-        if (spaceInvaders[i].yLocation >= 540) { // SpaceInvader Hits the Groud
+        if (spaceInvaders[i].yLocation >= gameArea.canvas.height - spaceInvaderHeight) { // SpaceInvader Hits the Groud
             gameArea.gameOver();  // Game Over
             break; // Don't check the rest of the spaceInvaders
         }
     }
 }
 
-function generateInvaders(){ // generating invaders
+// Generating SpaceInvaders
+function generateInvaders(){
     let randPos = Math.floor(Math.random() * 10) * 60; // random X position
     let si = new SpaceInvader(randPos , 0);
     spaceInvaders.push(si); // add spaceinvader to array
@@ -201,11 +208,11 @@ function generateInvaders(){ // generating invaders
 }
 
 // SpaceCraft Movement Controller
-function moveleft() {
+function moveLeft() {
     if (gameArea.disableKeyPress) {
         return; // do nothing
     }
-    spacecraft.xLocation -= 60; //moves spacecraft left
+    spacecraft.xLocation -= 60; // Moves spacecraft left
     if(spacecraft.xLocation < 0){
         spacecraft.xLocation = 0;
     }
@@ -213,11 +220,11 @@ function moveleft() {
   }
     
 // SpaceCraft Movement Controller
-function moveright() {
+function moveRight() {
     if (gameArea.disableKeyPress) {
         return; // do nothing
     }
-    spacecraft.xLocation += 60; //moves spacecraft right
+    spacecraft.xLocation += 60; // Moves spacecraft right
     if(spacecraft.xLocation > gameArea.canvas.width - spacecraft.width){
         spacecraft.xLocation = gameArea.canvas.width - spacecraft.width;
     }
@@ -230,7 +237,7 @@ function shoot(){
     // Calculate Shooting Results & Kill
     let indexes = []; // Array of Indexes of SpaceInvaders that are in front of the spaceCraft
     let indexesYLocation = []; // Array of the Y location of above spaceInvaders
-    for (let i = 0;  i < spaceInvaders.length; i++){ //loop to determine if "shot" hits target
+    for (let i = 0;  i < spaceInvaders.length; i++){ // Loop to determine if "shot" hits target
         if(spacecraft.xLocation == spaceInvaders[i].xLocation) {
             indexes.push(i);
             indexesYLocation.push(spaceInvaders[i].yLocation); 
@@ -244,24 +251,24 @@ function shoot(){
         explosion.yLocation = spaceInvaders[indexes[lowestIndex]].yLocation; // yLocation of the spaceInvader that was shot
         // Remove SpaceInvader object from Array
         spaceInvaders.splice(indexes[lowestIndex], 1);
-        // Update Score and High Score
-        gameArea.score++;
-        if (gameArea.score > gameArea.highscore){
-            gameArea.highscore = gameArea.score;
-        }
-        hScoreElement.innerText = "Best Score: " + gameArea.highscore; //stores for session, can use localStorage for long term
-        updateFrame(); // Redraw Everything
+        // Prepare the laser beam to be drawn from the Spacecraft to the SpaceInvader
+        laserBeam.xLocation = spacecraft.xLocation;
+        laserBeam.yLocation = explosion.yLocation + explosion.height;
+        laserBeam.height = gameArea.canvas.height - spacecraft.height - explosion.height - explosion.yLocation;
+        laserBeam.visible = true;
+        updateFrame(); // Redraw Everything (Remove dead SpaceInvader & replace with Explosion + LaserBeam)
         // Hide Explosion after a short period
         setTimeout(function(){
             explosion.visible = false;
             updateFrame(); // Redraw Everything
         }, 300);
-        // Prepare the laser beam to be drawn from the Spacecraft to the SpaceInvader
-        laserBeam.xLocation = spacecraft.xLocation;
-        laserBeam.yLocation = explosion.yLocation + 60;
-        laserBeam.height = gameArea.canvas.height - spacecraft.height - 60 - explosion.yLocation;
-        laserBeam.visible = true;
-        updateFrame(); // Redraw Everything
+        // Update & Show Score and High Score
+        gameArea.score++;
+        if (gameArea.score > gameArea.highscore){
+            gameArea.highscore = gameArea.score;
+        }
+        hScoreElement.innerText = "Best Score: " + gameArea.highscore; // Stores for session, can use localStorage for long term
+        scorePElement.innerText = "Score: " + gameArea.score;
     } else { // It's a Miss...
         // Prepare the laser beam to be drawn from the spacecraft to the top of the canvas
         laserBeam.xLocation = spacecraft.xLocation;
@@ -278,29 +285,27 @@ function shoot(){
  }
 
 // Setup score, Start SpaceInvader Generation & Movements,  
-function startGame(){ // Called directly from HTML (Start & Retry Buttons)
+function startGame(){ // Called directly from HTML (Start & Retry allBtnElements)
     // Canvas Setup
     explosion.visible = false; // If Spacecraft explosion leftover from previous gameplay
-    spacecraft.xLocation = 240; // Back to its initial position (in case of retry)
+    spacecraft.xLocation = 240; // Back to its initial position
     spacecraft.update(); // Add the Spacecraft
     spaceInvaders = []; // Empty the array that stores spaceInvaders
-    document.getElementById("level").innerText = "Level: " + gameArea.level;
+    levelPElement.innerText = "Level: " + gameArea.level;
     // Score Setup
     if (gameArea.level == 1){
         gameArea.score = 0; // Reset score to zero
+        scorePElement.innerText = "Score: " + gameArea.score; // Show score on screen
     }
-    scorePElement = document.getElementById("score");
-    hScoreElement = document.getElementById("highScore");
-    // Buttons & Controls
-    let buttons = document.getElementsByTagName("button");
-    for(let i = 0;  i < buttons.length; i++){
-        buttons[i].disabled = false;
+    // allBtnElements & Controls
+    for(let i in allBtnElements){
+        allBtnElements[i].disabled = false;
     }
-    document.getElementById("retry_btn").setAttribute("class", "hidden"); // Hide the Retry Button
-    document.getElementById("start_btn").setAttribute("class", "hidden"); // Hide the Start Button
-    document.getElementById("nextLevel_btn").setAttribute("class", "hidden"); // Hide the NextLevel Button
-    gameArea.disableKeyPress = false; // Activate KeyBoard KeyPress Again
-    // Timer for Generating & Changing SpaceInvader Positions Every X millisec.
+    retryBtnElement.setAttribute("class", "hidden"); // Hide the Retry Button
+    startBtnElement.setAttribute("class", "hidden"); // Hide the Start Button
+    nextLevelBtnElement.setAttribute("class", "hidden"); // Hide the NextLevel Button
+    gameArea.disableKeyPress = false; // Re-Activate KeyBoard KeyPress
+    // Timers for Generating & Changing SpaceInvader Positions Every X millisec.
     interval = setInterval(updateSpaceInvaderPositions, gameArea.invaderMovementSpeed);
     let invaderCounter = 0;
     intervalGen = setInterval(function(){
@@ -321,10 +326,10 @@ document.addEventListener("keydown", function(event){
         return; // do nothing
     } // otherwise:
     if(event.keyCode === 37){
-        moveleft();
+        moveLeft();
     }
     if(event.keyCode === 39){
-        moveright();
+        moveRight();
     }
     if(event.keyCode === 32){
         shoot();
