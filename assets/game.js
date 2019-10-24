@@ -1,18 +1,19 @@
 console.log("game.js has loaded");
-var spaceInvaders = []; // array to store spaceinvaders
+
+let spaceInvaders = []; // array to store spaceinvaders
 // HTML Elements
-var levelPElement = document.getElementById("level");
-var scorePElement = document.getElementById("score");
-var hScoreElement = document.getElementById("highScore");
-var allBtnElements = document.getElementsByTagName("button");
-var retryBtnElement = document.getElementById("retry_btn");
-var startBtnElement = document.getElementById("start_btn");
-var nextLevelBtnElement = document.getElementById("nextLevel_btn");
-var spaceInvaderHeight = 60;
-var spaceInvaderWidth = 60;
+let levelPElement = document.getElementById("level");
+let scorePElement = document.getElementById("score");
+let hScoreElement = document.getElementById("highScore");
+let allBtnElements = document.getElementsByTagName("button");
+let retryBtnElement = document.getElementById("retry_btn");
+let startBtnElement = document.getElementById("start_btn");
+let nextLevelBtnElement = document.getElementById("nextLevel_btn");
+let spaceInvaderHeight = 60;
+let spaceInvaderWidth = 60;
 
 // One Object (Game Area):
-var gameArea = {
+let gameArea = {
     // Vars
     canvas : document.getElementById("mycanvas"),
     score : 0,
@@ -96,7 +97,7 @@ var gameArea = {
 }
 
 // One Object (SpaceCraft):
-var spacecraft = {
+let spacecraft = {
     // Vars
     imgSpaceCraft : document.getElementById('spacecraft'),
     xLocation : 240, // initial position on screen
@@ -129,7 +130,7 @@ function SpaceInvader(xLocation, yLocation) {
 }
 
 // One Object (Explosion):
-var explosion = {
+let explosion = {
     // Vars
     imgExplosion : document.getElementById('explosion'),
     xLocation : 0, // initial position on screen
@@ -146,7 +147,7 @@ var explosion = {
 }
 
 // One Object (Laser Beam):
-var laserBeam = {
+let laserBeam = {
     // Vars
     imgLaserBeam : document.getElementById('laser-beam'),
     xLocation : 0, // initial position on screen
