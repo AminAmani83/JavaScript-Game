@@ -27,6 +27,7 @@ let gameArea = {
         this.ctx.font = "30px Arial";
         this.ctx.fillStyle = "black";
         this.ctx.textAlign = "center";
+        this.canvas.style.backgroundImage = "url(img/interstellar.jpg)";
         this.resetLevel();
     },
     resetLevel : function(){ // Difficulty Level Setup for Level 1
@@ -193,7 +194,7 @@ function updateSpaceInvaderPositions() {
                 gameArea.gameOver();  // Game Over
                 break; // Don't check the rest of the spaceInvaders
         }
-        if (spaceInvaders[i].yLocation >= gameArea.canvas.height - spaceInvaderHeight) { // SpaceInvader Hits the Groud
+        if (spaceInvaders[i].yLocation >= gameArea.canvas.height - spaceInvaderHeight) { // SpaceInvader Hits the Ground
             gameArea.gameOver();  // Game Over
             break; // Don't check the rest of the spaceInvaders
         }
@@ -204,7 +205,7 @@ function updateSpaceInvaderPositions() {
 function generateInvaders(){
     let randPos = Math.floor(Math.random() * 10) * 60; // random X position
     let si = new SpaceInvader(randPos , 0);
-    spaceInvaders.push(si); // add spaceinvader to array
+    spaceInvaders.push(si); // add a space invader to array
     updateFrame(); // Redraw Everything
 }
 
@@ -235,6 +236,9 @@ function moveRight() {
 
 // Shoot, draw Laser Beam, Calculate Hit or Miss, Draw Explosion if Hit
 function shoot(){
+    // create a sound fx
+    let fx = document.getElementById("pew");
+    fx.play();
     // Calculate Shooting Results & Kill
     let indexes = []; // Array of Indexes of SpaceInvaders that are in front of the spaceCraft
     let indexesYLocation = []; // Array of the Y location of above spaceInvaders
@@ -245,6 +249,9 @@ function shoot(){
         }
     }
     if(indexes.length > 0) { // It's a Hit!
+        // create sound fx
+        let fx = document.getElementById("explosion_sound");
+        fx.play();
         let lowestIndex = indexesYLocation.indexOf( Math.max(...indexesYLocation) ); // In case of multiple spaceInvaders, hit the lowest one
         // Prepare The Explosion
         explosion.visible = true;
@@ -293,6 +300,10 @@ function startGame(){ // Called directly from HTML (Start & Retry allBtnElements
     spacecraft.update(); // Add the Spacecraft
     spaceInvaders = []; // Empty the array that stores spaceInvaders
     levelPElement.innerText = "Level: " + gameArea.level;
+    // Soundtrack setup
+    let sndtrk = document.getElementById("soundtrack");
+    sndtrk.currentTime = 60;
+    sndtrk.play();
     // Score Setup
     if (gameArea.level == 1){
         gameArea.score = 0; // Reset score to zero
@@ -326,13 +337,13 @@ document.addEventListener("keydown", function(event){
     if (gameArea.disableKeyPress) {
         return; // do nothing
     } // otherwise:
-    if(event.keyCode === 37){
+    if(event.key === 'ArrowLeft'){
         moveLeft();
     }
-    if(event.keyCode === 39){
+    if(event.code === 'ArrowRight'){
         moveRight();
     }
-    if(event.keyCode === 32){
+    if(event.code === "Space") {
         shoot();
     }
     event.preventDefault();
